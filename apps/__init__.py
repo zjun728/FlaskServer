@@ -18,6 +18,7 @@ app.config['ABS_UPLOAD_FOLDER'] = os.path.join(STATIC_DIR, app.config['UPLOAD_FO
 
 # 第一步：配置上传文件的保存地址
 app.config['UPLOADED_PHOTOS_DEST'] = app.config['ABS_UPLOAD_FOLDER']
+# app.config['UPLOADED_PHOTOS_ALLOW'] = app.config['ABS_UPLOAD_FOLDER']
 
 creat_folder(app.config['ABS_UPLOAD_FOLDER'])
 

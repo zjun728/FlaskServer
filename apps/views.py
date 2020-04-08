@@ -4,7 +4,7 @@ from flask import render_template, request, url_for, send_from_directory
 
 from apps import app
 # IMAGES 允许上传的扩展名
-from flask_uploads import UploadSet, IMAGES, configure_uploads
+from flask_uploads import UploadSet, IMAGES, configure_uploads, TEXT
 
 # 第二步：产生UploadSet类对象的实例，用来管理上传集合
 # Upload Sets 管理上传集合
@@ -24,6 +24,7 @@ def index():
             #  print(file_path)
             # fs.save(file_path)    # 这个保存使用了FileStorage 的使用方法保存文件
 
+            # 第四步：使用UploadSet 的save方法保存文件
             # (self, storage, folder=None, name=None):
             # 保存到uploads的根目录   返回的是当前文件的名字  the file will be saved and its name (including the folder) will be returned.
             fname = photosSet.save(fs)  # photosSet.save保存的 文件名fname 会做安全性检查，过滤掉特殊字符 fname可能不是原来的fs.filename 这个文件名了
@@ -35,6 +36,8 @@ def index():
             file_url = url_for("static", filename="uploads/" + fname)
             # file_url2 = url_for("uploaded_file",fs.filename)
             file_url2 = url_for("uploaded_file", filename=fname)
+
+            # 第五步：使用UploadSet 的url方法获得文件的url
             file_url3 = photosSet.url(fname)
             print("第一种方式", file_url)
             print("第二种方式", file_url2)
