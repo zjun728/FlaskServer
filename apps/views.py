@@ -1,10 +1,10 @@
 import os
 
-from flask import render_template, request, url_for, send_from_directory
+from flask import render_template, request, url_for, send_from_directory, flash
 
 from apps import app
 # IMAGES 允许上传的扩展名
-from flask_uploads import UploadSet, IMAGES, configure_uploads, TEXT
+from flask_uploads import UploadSet, IMAGES, configure_uploads, TEXT,UploadNotAllowed
 
 # 第二步：产生UploadSet类对象的实例，用来管理上传集合
 # Upload Sets 管理上传集合
@@ -13,7 +13,7 @@ photosSet = UploadSet('photos', IMAGES)  # 'photos'必须是 app.config['UPLOADE
 configure_uploads(app, photosSet)
 
 
-@app.route('/', methods=["GET", "POST"])
+@app.route('/index', methods=["GET", "POST"])
 def index():
     if request.method == "POST":
         fs = request.files["image_upload"]
@@ -52,6 +52,7 @@ def index():
 def uploaded_file(filename):
     return send_from_directory(app.config["ABS_UPLOAD_FOLDER"], filename)
 
+
 # @app.route('/uploaded/<filename>')
 # def uploaded_file(filename):
 #     img_path = os.path.join(app.config["ABS_UPLOAD_FOLDER"], filename)
@@ -62,3 +63,28 @@ def uploaded_file(filename):
 #     else:
 #         print("false")
 #         return send_from_directory(app.config["ABS_UPLOAD_FOLDER"], "default.png")
+
+
+@app.route('/', methods=["GET", "POST"])
+def index2():
+    if request.method == "POST":
+        folder = request.form['image_folder']
+        fs = request.files['image_file']
+        if fs.filename != "":
+            try:
+                # fname = photosSet.save(storage=fs, folder=folder)   # photosSet.save会做安全性检查，过滤掉特殊字符 fname可能不是原来的fs.filename
+                # fname = photosSet.save(storage=fs, name=folder + "/" + fs.filename)  # 这样不会更改原文件名字
+                fname = photosSet.save(storage=fs, folder=folder, name=fs.filename)  # 强制使用原文件名 会保留原文件名字
+                print(fname)
+            except UploadNotAllowed:
+                flash(message="上传文件的类型不被允许！",category='err')
+                return render_template('index2.html')
+            else:
+                #fpath=photosSet.path(filename=fname)
+                fpath=photosSet.path(filename='3.jpg',folder=folder)
+
+                os.remove(fpath)
+                furl = photosSet.url(fname)
+                flash(message="上传文件成功！", category='ok')
+                return render_template('index2.html', file_url=furl)
+    return render_template('index2.html')
